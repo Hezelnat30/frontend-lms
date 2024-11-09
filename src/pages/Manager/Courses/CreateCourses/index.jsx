@@ -19,6 +19,7 @@ import { useNavigate } from "react-router-dom";
 import { useLoaderData } from "react-router-dom";
 import { useParams } from "react-router-dom";
 import { useRevalidator } from "react-router-dom";
+import { useEffect } from "react";
 
 export default function CreateCourses() {
   const navigate = useNavigate();
@@ -39,13 +40,13 @@ export default function CreateCourses() {
     ),
     defaultValues: {
       name: result?.name,
-      thumbnail: result?.thumbnail,
       tagline: result?.tagline,
       description: result?.description,
     },
   });
 
   const [file, setFile] = useState(null);
+  const [thumbnailUrl, setThumbnailUrl] = useState(result?.thumbnail_url || "");
   const inputFileRef = useRef(null);
 
   const { isPending: isPendingCreate, mutateAsync: mutateCreate } = useMutation(
@@ -67,8 +68,19 @@ export default function CreateCourses() {
     }
   );
 
+  useEffect(() => {
+    if (file) {
+      const newThumbnailUrl = URL.createObjectURL(file);
+      setThumbnailUrl(newThumbnailUrl);
+
+      return () => URL.revokeObjectURL(newThumbnailUrl);
+    } else {
+      setThumbnailUrl(result?.thumbnail_url || "");
+    }
+  }, [file, result?.thumbnail_url]);
+
   const handleThumbnailChange = (e) => {
-    if (e.target.files) {
+    if (e.target.files && e.target.files.length > 0) {
       setFile(e.target.files[0]);
       setValue("thumbnail", e.target.files[0]);
     }
@@ -76,10 +88,9 @@ export default function CreateCourses() {
 
   const handleDeleteThumbnail = () => {
     setFile(null);
-    setValue("thumbnail", null);
-    if (inputFileRef.current) {
-      inputFileRef.current.value = "";
-    }
+    setThumbnailUrl("");
+    setValue("thumbnail", null, { shouldValidate: true });
+    if (inputFileRef.current) inputFileRef.current.value = "";
   };
 
   const onSubmit = async (data) => {
@@ -99,16 +110,12 @@ export default function CreateCourses() {
     }
   };
 
-  const thumbnailSrc = file
-    ? URL.createObjectURL(file)
-    : result?.thumbnail_url || "";
-
   return (
     <>
       <header className="flex items-center justify-between gap-[30px]">
         <div>
           <h1 className="font-extrabold text-[28px] leading-[42px]">
-            New Course
+            {course ? "Update Course" : "New Course"}
           </h1>
           <p className="text-[#838C9D] mt-[1]">Create new future for company</p>
         </div>
@@ -149,7 +156,7 @@ export default function CreateCourses() {
               onClick={() => inputFileRef.current?.click()}
               className="absolute top-0 left-0 w-full h-full flex justify-center items-center gap-3 z-0"
             >
-              {!file && !result?.thumbnail_url && (
+              {!file && !thumbnailUrl && (
                 <>
                   <ReactSVG src={gallery_black} alt="icon" />
                   <span className="text-[#838C9D]">Add an attachment</span>
@@ -158,14 +165,14 @@ export default function CreateCourses() {
             </button>
             <img
               id="thumbnail-preview"
-              src={thumbnailSrc}
+              src={thumbnailUrl}
               className={`w-full h-full object-cover ${
-                file || result?.thumbnail_url ? "block" : "hidden"
+                file || thumbnailUrl ? "block" : "hidden"
               }`}
               alt="thumbnail"
             />
 
-            {(file || result?.thumbnail_url) && (
+            {(file || thumbnailUrl) && (
               <button
                 onClick={handleDeleteThumbnail}
                 type="button"
