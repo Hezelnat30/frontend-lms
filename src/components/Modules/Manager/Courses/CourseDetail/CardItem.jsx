@@ -2,14 +2,32 @@ import React from "react";
 import { NavLink } from "react-router-dom";
 import { ReactSVG } from "react-svg";
 import note_favorite_purple from "@assets/images/icons/note-favorite-purple.svg";
+import video_play_purple from "@assets/images/icons/video-play-purple.svg";
+import thumbnail_video from "@assets/images/thumbnails/cover-video.png";
+import thumbnail_text from "@assets/images/thumbnails/cover-text.png";
+import { useMutation } from "@tanstack/react-query";
+import { deleteContent } from "@/services/courseService";
+import { useRevalidator } from "react-router-dom";
 
-export default function CardItem({
-  id = 1,
-  index = 1,
-  type = "video",
-  title = "Install VSCode di Windows",
-  courseId = 2,
-}) {
+export default function CardItem({ id, index, type, title, courseId }) {
+  const revalidator = useRevalidator();
+  const { isPending, mutateAsync: mutateDelete } = useMutation({
+    mutationFn: () => deleteContent(id),
+  });
+
+  const handleDeleteContent = async () => {
+    try {
+      await mutateDelete();
+      revalidator.revalidate();
+    } catch (error) {
+      console.log("Delete Content Error:", error);
+    }
+  };
+
+  const displayType = type.charAt(0).toUpperCase() + type.slice(1);
+  const typeIcon = type === "video" ? video_play_purple : note_favorite_purple;
+  const thumbnailSrc = type === "video" ? thumbnail_video : thumbnail_text;
+
   return (
     <div className="card flex items-center gap-5">
       <div className="relative flex shrink-0 w-[140px] h-[110px] ">
@@ -18,7 +36,7 @@ export default function CardItem({
         </p>
         <div className="rounded-[20px] bg-[#D9D9D9] overflow-hidden">
           <img
-            src={`/assets/images/thumbnails/cover-${type}.png`}
+            src={thumbnailSrc}
             className="w-full h-full object-cover"
             alt="thumbnail"
           />
@@ -30,8 +48,8 @@ export default function CardItem({
         </h3>
         <div className="flex items-center gap-5">
           <div className="flex items-center gap-[6px] mt-[6px]">
-            <ReactSVG src={note_favorite_purple} alt="icon" />
-            <p className="text-[#838C9D]">Video Content</p>
+            <ReactSVG src={typeIcon} alt="icon" />
+            <p className="text-[#838C9D]">{displayType} Content</p>
           </div>
         </div>
       </div>
@@ -43,6 +61,8 @@ export default function CardItem({
           Edit Content
         </NavLink>
         <button
+          disabled={isPending}
+          onClick={handleDeleteContent}
           type="button"
           className="w-fit rounded-full p-[14px_20px] bg-[#FF435A] font-semibold text-white text-nowrap"
         >

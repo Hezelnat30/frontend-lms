@@ -1,39 +1,29 @@
 import React from "react";
-import { useLoaderData } from "react-router-dom";
 import Select from "react-select";
 import { Controller } from "react-hook-form";
-import bill_black from "@assets/images/icons/bill-black.svg";
+import crown_black from "@assets/images/icons/crown-black.svg";
 import { ReactSVG } from "react-svg";
 
-const SelectCategories = ({ control, name, errorMessage }) => {
-  const { categories, course } = useLoaderData();
-  const categoryName = course?.result?.category?.name;
-  const { result } = categories;
-
-  const categoryOptions = result?.map((category) => ({
-    value: category._id,
-    label: category.name,
-  }));
-
-  const selectedCategory = categoryOptions.find(
-    (option) => option.label === categoryName
-  );
+const SelectType = ({ control, errorMessage }) => {
+  const typeOptions = [
+    { value: "video", label: "Video" },
+    { value: "text", label: "Text" },
+  ];
 
   return (
     <>
       <div className="flex items-center w-full rounded-full border border-[#CFDBEF] gap-3 ps-5 py-1.5 transition-all duration-300 focus-within:ring-2 focus-within:ring-[#662FFF]">
-        <ReactSVG src={bill_black} alt="icon" />
+        <ReactSVG src={crown_black} alt="icon" />
         <Controller
-          name={name}
+          name="type"
           control={control}
-          defaultValue={selectedCategory ? selectedCategory.value : null}
           render={({ field: { onChange, value, ref } }) => (
             <Select
-              placeholder="Choose One Category"
-              options={categoryOptions}
+              placeholder="Choose content type"
+              options={typeOptions}
               className="w-full border-none"
               value={
-                categoryOptions.find((option) => option.value === value) || null
+                typeOptions.find((option) => option.value === value) || null
               }
               onChange={(selectedOption) =>
                 onChange(selectedOption ? selectedOption.value : null)
@@ -44,7 +34,8 @@ const SelectCategories = ({ control, name, errorMessage }) => {
                   ...base,
                   border: "none",
                   boxShadow: "none",
-                  fontWeight: "600",
+                  marginLeft: -10,
+                  fontWeight: "500",
                   color: "#838C9D",
                   backgroundColor: "transparent",
                 }),
@@ -53,9 +44,13 @@ const SelectCategories = ({ control, name, errorMessage }) => {
           )}
         />
       </div>
-      <span className="error-message text-[#FF435A]">{errorMessage}</span>
+      {errorMessage && (
+        <span className="error-message text-[#FF435A]">
+          {errorMessage && "Please select content type"}
+        </span>
+      )}
     </>
   );
 };
 
-export default SelectCategories;
+export default SelectType;

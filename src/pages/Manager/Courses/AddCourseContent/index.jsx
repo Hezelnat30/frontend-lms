@@ -15,10 +15,70 @@ import {
   Table,
   Undo,
 } from "ckeditor5";
+import note_favorite_black from "@assets/images/icons/note-favorite-black.svg";
+import bill_black from "@assets/images/icons/bill-black.svg";
+import { CgSpinnerTwoAlt } from "react-icons/cg";
 
 import "ckeditor5/ckeditor5.css";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { mutateContentSchema } from "@/utils/zodSchema";
+import DefaultInput from "@/components/Modules/Manager/Courses/AddCourseContent/DefaultInput.jsx";
+import SelectType from "@/components/Modules/Manager/Courses/AddCourseContent/SelectType";
+import { useMutation } from "@tanstack/react-query";
+import { createContent, updateContent } from "@/services/courseService";
+import { useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { useLoaderData } from "react-router-dom";
 
 export default function AddCourseContent() {
+  const navigate = useNavigate();
+  const content = useLoaderData();
+  const { id, contentId } = useParams();
+
+  const {
+    control,
+    register,
+    handleSubmit,
+    formState: { errors },
+    setValue,
+    watch,
+  } = useForm({
+    resolver: zodResolver(mutateContentSchema),
+    defaultValues: {
+      title: content?.title || "",
+      type: content?.type || "video",
+      youtubeId: content?.youtubeId || "",
+      text: content?.text || "",
+    },
+  });
+
+  const { isPending: createIsPending, mutateAsync: mutateCreateContent } =
+    useMutation({
+      mutationFn: (data) => createContent(data),
+      onSuccess: () => navigate(`/manager/courses/${id}`),
+    });
+  const { isPending: updateIsPending, mutateAsync: mutateUpdateContent } =
+    useMutation({
+      mutationFn: (data) => updateContent(data, contentId),
+      onSuccess: () => navigate(`/manager/courses/${id}`),
+    });
+  const type = watch("type");
+
+  const onSubmit = async (data) => {
+    const payload = {
+      ...data,
+      courseId: id,
+    };
+    try {
+      content === undefined
+        ? await mutateCreateContent(payload)
+        : await mutateUpdateContent(payload);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
     <>
       <div
@@ -32,7 +92,7 @@ export default function AddCourseContent() {
           Course
         </span>
         <span className="last-of-type:after:content-[''] last-of-type:font-semibold">
-          Add Content
+          {content === undefined ? "Add" : "Edit"} Content
         </span>
       </div>
       <header className="flex items-center justify-between gap-[30px]">
@@ -46,7 +106,7 @@ export default function AddCourseContent() {
           </div>
           <div>
             <h1 className="font-extrabold text-[28px] leading-[42px]">
-              Add Content
+              {content === undefined ? "Add" : "Edit"} Content
             </h1>
             <p className="text-[#838C9D] mt-[1]">
               Give a best content for the course
@@ -55,134 +115,108 @@ export default function AddCourseContent() {
         </div>
       </header>
       <form
-        action="manage-course-materi.html"
+        onSubmit={handleSubmit(onSubmit)}
         className="flex flex-col w-[930px] rounded-[30px] p-[30px] gap-[30px] bg-[#F8FAFB]"
       >
         <div className="flex flex-col gap-[10px]">
-          <label for="title" className="font-semibold">
-            Content Title
-          </label>
-          <div className="flex items-center w-full rounded-full border border-[#CFDBEF] gap-3 px-5 transition-all duration-300 focus-within:ring-2 focus-within:ring-[#662FFF]">
-            <img
-              src="/assets/images/icons/note-favorite-black.svg"
-              className="w-6 h-6"
-              alt="icon"
-            />
-            <input
-              type="text"
-              name="title"
-              id="title"
-              className="appearance-none outline-none w-full py-3 font-semibold placeholder:font-normal placeholder:text-[#838C9D] !bg-transparent"
-              placeholder="Write better name for your course"
-              required
-            />
-          </div>
+          <DefaultInput
+            icon={note_favorite_black}
+            label="Content Title"
+            name="title"
+            type="text"
+            register={register}
+            placeholder="Write better name for your course"
+            errorMessage={errors.title?.message}
+          />
         </div>
         <div className="flex flex-col gap-[10px]">
           <label htmlFor="type" className="font-semibold">
             Select Type
           </label>
-          <div className="flex items-center w-full rounded-full border border-[#CFDBEF] gap-3 px-5 transition-all duration-300 focus-within:ring-2 focus-within:ring-[#662FFF]">
-            <img
-              src="/assets/images/icons/crown-black.svg"
-              className="w-6 h-6"
-              alt="icon"
-            />
-            <select
-              name="type"
-              id="type"
-              className="appearance-none outline-none w-full py-3 px-2 -mx-2 font-semibold placeholder:font-normal placeholder:text-[#838C9D] !bg-transparent"
-            >
-              <option value="" hidden>
-                Choose content type
-              </option>
-              <option value="">test</option>
-              <option value="">test</option>
-              <option value="">test</option>
-            </select>
-            <img
-              src="/assets/images/icons/arrow-down.svg"
-              className="w-6 h-6"
-              alt="icon"
-            />
-          </div>
+          <SelectType control={control} errorMessage={errors.type?.message} />
         </div>
-        <div className="flex flex-col gap-[10px]">
-          <label for="video" className="font-semibold">
-            Youtube Video ID
-          </label>
-          <div className="flex items-center w-full rounded-full border border-[#CFDBEF] gap-3 px-5 transition-all duration-300 focus-within:ring-2 focus-within:ring-[#662FFF]">
-            <img
-              src="/assets/images/icons/bill-black.svg"
-              className="w-6 h-6"
-              alt="icon"
-            />
-            <input
+        {type === "video" && (
+          <div className="flex flex-col gap-[10px]">
+            <DefaultInput
+              icon={bill_black}
+              label="Youtube Video ID"
+              name="youtubeId"
               type="text"
-              name="video"
-              id="video"
-              className="appearance-none outline-none w-full py-3 font-semibold placeholder:font-normal placeholder:text-[#838C9D] !bg-transparent"
-              placeholder="Write tagline for better copy"
+              register={register}
+              placeholder="Youtube id for your course"
+              errorMessage={errors.youtubeId?.message}
             />
           </div>
-        </div>
-        <div className="flex flex-col gap-[10px]">
-          <label className="font-semibold">Content Text</label>
-          <CKEditor
-            editor={ClassicEditor}
-            config={{
-              toolbar: [
-                "undo",
-                "redo",
-                "|",
-                "heading",
-                "|",
-                "bold",
-                "italic",
-                "|",
-                "link",
-                "insertTable",
-                "mediaEmbed",
-                "|",
-                "bulletedList",
-                "numberedList",
-                "indent",
-                "outdent",
-              ],
-              plugins: [
-                Bold,
-                Essentials,
-                Heading,
-                Indent,
-                IndentBlock,
-                Italic,
-                Link,
-                List,
-                MediaEmbed,
-                Paragraph,
-                Table,
-                Undo,
-              ],
-              initialData: "<h1>Hello from CKEditor 5!</h1>",
-            }}
-          />
-        </div>
-        <div className="flex flex-col gap-[10px]">
-          <label className="font-semibold">Content Text</label>
-          <div id="editor"></div>
-        </div>
+        )}
+        {type === "text" && (
+          <div className="flex flex-col gap-[10px]">
+            <label className="font-semibold">Content Text</label>
+            <CKEditor
+              editor={ClassicEditor}
+              config={{
+                toolbar: [
+                  "undo",
+                  "redo",
+                  "|",
+                  "heading",
+                  "|",
+                  "bold",
+                  "italic",
+                  "|",
+                  "link",
+                  "insertTable",
+                  "mediaEmbed",
+                  "|",
+                  "bulletedList",
+                  "numberedList",
+                  "indent",
+                  "outdent",
+                ],
+                plugins: [
+                  Bold,
+                  Essentials,
+                  Heading,
+                  Indent,
+                  IndentBlock,
+                  Italic,
+                  Link,
+                  List,
+                  MediaEmbed,
+                  Paragraph,
+                  Table,
+                  Undo,
+                ],
+                initialData: content?.text,
+              }}
+              onChange={(_, editor) => {
+                const data = editor.getData();
+                setValue("text", data);
+              }}
+            />
+            <span className="error-message text-[#FF435A]">
+              {errors?.text?.message}
+            </span>
+          </div>
+        )}
         <div className="flex items-center gap-[14px]">
           <button
-            type="submit"
+            type="button"
             className="w-full rounded-full border border-[#060A23] p-[14px_20px] font-semibold text-nowrap"
           >
             Save as Draft
           </button>
           <button
+            disabled={content === undefined ? createIsPending : updateIsPending}
             type="submit"
-            className="w-full rounded-full p-[14px_20px] font-semibold text-[#FFFFFF] bg-[#662FFF] text-nowrap"
+            className="w-full flex items-center justify-center gap-2 rounded-full p-[14px_20px] font-semibold text-[#FFFFFF] bg-[#662FFF] text-nowrap"
           >
-            Add Content Now
+            {content === undefined ? "Add Content Now" : "Edit Content"}
+            <CgSpinnerTwoAlt
+              size={24}
+              className={`hidden ${
+                createIsPending || (updateIsPending && "block animate-spin")
+              }`}
+            />
           </button>
         </div>
       </form>

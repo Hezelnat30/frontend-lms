@@ -5,6 +5,11 @@ export default {
     extend: {
       width: {
         30: "7.5rem",
+        22: "5.5rem",
+      },
+      height: {
+        30: "7.5rem",
+        22: "5.5rem",
       },
       blur: {
         xs: "1.5px",
@@ -14,6 +19,9 @@ export default {
         2.5: "0.625rem",
         7.5: "1.875rem",
         15: "3.75rem",
+      },
+      gap: {
+        4.5: "1.125rem",
       },
       colors: {
         primary: {
@@ -26,5 +34,5 @@ export default {
       },
     },
   },
-  plugins: [],
+  plugins: [require("@tailwindcss/typography")],
 };

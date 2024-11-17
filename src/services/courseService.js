@@ -11,9 +11,11 @@ export const getCourse = async () => {
   }
 };
 
-export const getCourseById = async (id) => {
+export const getCourseById = async (id, preview = false) => {
   try {
-    const response = await apiInstanceAuth.get(`/courses/${id}`);
+    const response = await apiInstanceAuth.get(
+      `/courses/${id}${preview ? "?preview=true" : ""}`
+    );
     const { data: courseById } = response;
     return courseById;
   } catch (error) {
@@ -70,6 +72,50 @@ export const deleteCourse = async (id) => {
     return deleteData;
   } catch (error) {
     console.log(error);
+    throw error;
+  }
+};
+
+export const createContent = async (data) => {
+  try {
+    const response = await apiInstanceAuth.post("/courses/contents", data);
+    const { data: createData } = response;
+    return createData;
+  } catch (error) {
+    console.error("Error occurred:", error);
+    throw error;
+  }
+};
+
+export const getDetailContent = async (id) => {
+  try {
+    const response = await apiInstanceAuth.get(`/courses/contents/${id}`);
+    const { data: detailContent } = response;
+    return detailContent;
+  } catch (error) {
+    console.error("Error occurred:", error);
+    throw error;
+  }
+};
+
+export const updateContent = async (data, id) => {
+  try {
+    const response = await apiInstanceAuth.put(`/courses/contents/${id}`, data);
+    const { data: updateContent } = response;
+    return updateContent;
+  } catch (error) {
+    console.error("Error occurred:", error);
+    throw error;
+  }
+};
+
+export const deleteContent = async (id) => {
+  try {
+    const response = await apiInstanceAuth.delete(`/courses/contents/${id}`);
+    const { data: deleteContent } = response;
+    return deleteContent;
+  } catch (error) {
+    console.error("Error occurred:", error);
     throw error;
   }
 };

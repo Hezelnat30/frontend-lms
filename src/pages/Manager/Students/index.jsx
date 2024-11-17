@@ -1,8 +1,13 @@
 import StudentCard from "@/components/Modules/Manager/Students/StudentCard";
+import { getStudents } from "@/services/studentService";
 import React from "react";
+import { useEffect } from "react";
+import { useLoaderData } from "react-router-dom";
 import { NavLink } from "react-router-dom";
 
 export default function Students() {
+  const students = useLoaderData();
+
   return (
     <>
       <header className="flex items-center justify-between gap-[30px]">
@@ -22,7 +27,7 @@ export default function Students() {
             Import File
           </NavLink>
           <NavLink
-            to="create-new-student.html"
+            to="/manager/students/create"
             className="w-fit rounded-full p-[14px_20px] font-semibold text-[#FFFFFF] bg-[#662FFF] text-nowrap"
           >
             Add Student
@@ -33,9 +38,16 @@ export default function Students() {
         id="CourseList"
         className="flex flex-col w-full rounded-[30px] p-[30px] gap-[30px] bg-[#F8FAFB]"
       >
-        <StudentCard />
-        <StudentCard name="Angga Risky Setiawan" />
-        <StudentCard name="Shayna Wo" />
+        {students?.map((student, index) => (
+          <StudentCard
+            key={student._id}
+            id={student._id}
+            name={
+              student?.name.charAt(0).toUpperCase() + student?.name.slice(1)
+            }
+            imageUrl={student?.photo_url}
+          />
+        ))}
         {/* <div id="Pagination" className="flex items-center gap-3">
           <button
             type="button"

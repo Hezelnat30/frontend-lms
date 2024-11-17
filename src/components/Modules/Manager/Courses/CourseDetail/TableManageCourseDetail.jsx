@@ -2,7 +2,7 @@ import React from "react";
 import CardItem from "./CardItem";
 import { NavLink } from "react-router-dom";
 
-export default function TableManageCourseDetail() {
+export default function TableManageCourseDetail({ details, courseId }) {
   return (
     <section
       id="CourseList"
@@ -11,18 +11,22 @@ export default function TableManageCourseDetail() {
       <div className="header flex items-center justify-between">
         <h2 className="font-bold text-[22px] leading-[33px]">Course Content</h2>
         <NavLink
-          to="/manager/courses/1/add-content"
+          to={`/manager/courses/${courseId}/add-content`}
           className="w-fit rounded-full p-[14px_20px] font-semibold text-[#FFFFFF] bg-[#662FFF] text-nowrap"
         >
           Add Content
         </NavLink>
       </div>
-      <CardItem title="Install VSCode di Windows" type="video" />
-      <CardItem title="Install VSCode di Windows" type="video" />
-      <CardItem title="Install VSCode di Windows" type="text" />
-      <CardItem title="Install VSCode di Windows" type="text" />
-      <CardItem title="Install Docker di Windows" type="video" />
-      <CardItem title="Install Extensions di VSCode" type="text" />
+      {details?.map(({ _id, title, type }, index) => (
+        <CardItem
+          key={_id}
+          title={title}
+          type={type}
+          id={_id}
+          index={index + 1}
+          courseId={courseId}
+        />
+      ))}
       <div id="Pagination" className="flex items-center gap-3">
         <button
           type="button"

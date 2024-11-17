@@ -23,3 +23,48 @@ export const createCourseSchema = z.object({
 export const updateCourseSchema = createCourseSchema.partial({
   thumbnail: true,
 });
+
+export const mutateContentSchema = z
+  .object({
+    title: z.string().min(5, "Title must be at least 5 characters long"),
+    type: z.string().min(1, { message: "Type is required" }),
+    youtubeId: z.string().optional(),
+    text: z.string().optional(),
+  })
+  .superRefine(({ type, youtubeId, text }, ctx) => {
+    const schemaYoutubeId = z.string().min(4).safeParse(youtubeId);
+    const schemaText = z.string().min(4).safeParse(text);
+
+    if (type === "video") {
+      if (!schemaYoutubeId.success) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Youtube ID is required",
+          path: ["youtubeId"],
+        });
+      }
+    }
+    if (type === "text") {
+      if (!schemaText.success) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Text is required",
+          path: ["text"],
+        });
+      }
+    }
+  });
+
+export const createStudentSchema = z.object({
+  name: z.string().min(5, "Title must be at least 5 characters long"),
+  email: z.string().email("Invalid email address"),
+  password: z.string().min(5, "Password must be at least 5 characters long"),
+  avatar: z.any().refine((file) => file?.name, {
+    message: "Avatar is required",
+  }),
+});
+
+export const updateStudentSchema = createCourseSchema.omit({
+  avatar: true,
+  password: true,
+});

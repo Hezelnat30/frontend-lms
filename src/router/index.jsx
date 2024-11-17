@@ -19,7 +19,18 @@ import {
   getCategories,
   getCourse,
   getCourseById,
+  getDetailContent,
 } from "@/services/courseService";
+import AddStudent from "@/pages/Manager/Students/AddStudent";
+import { getStudentById, getStudents } from "@/services/studentService";
+
+const checkAuth = () => {
+  const session = secureLocalStorage.getItem(STORAGE_KEY);
+  if (!session || session.role !== "manager") {
+    throw redirect("/manager/signin");
+  }
+  return session;
+};
 
 const router = createBrowserRouter([
   {
@@ -42,13 +53,7 @@ const router = createBrowserRouter([
   {
     path: "/manager",
     id: MANAGER_SESSION,
-    loader: async () => {
-      const session = secureLocalStorage.getItem(STORAGE_KEY);
-      if (!session || session.role !== "manager") {
-        throw redirect("/manager/signin");
-      }
-      return session;
-    },
+    loader: checkAuth,
     element: <LayoutDashboard />,
     children: [
       {
@@ -82,6 +87,10 @@ const router = createBrowserRouter([
       },
       {
         path: "courses/:id",
+        loader: async ({ params }) => {
+          const course = await getCourseById(params.id);
+          return course;
+        },
         element: <CourseDetail />,
       },
       {
@@ -89,12 +98,40 @@ const router = createBrowserRouter([
         element: <AddCourseContent />,
       },
       {
+        path: "courses/:id/edit/:contentId",
+        loader: async ({ params }) => {
+          const content = await getDetailContent(params.contentId);
+          return content?.result;
+        },
+        element: <AddCourseContent />,
+      },
+      {
         path: "courses/:id/preview",
+        loader: async ({ params }) => {
+          const course = await getCourseById(params.id, true);
+          return course?.result;
+        },
         element: <CoursePreview />,
       },
       {
         path: "students",
+        loader: async () => {
+          const students = await getStudents();
+          return students?.result;
+        },
         element: <Students />,
+      },
+      {
+        path: "students/create",
+        element: <AddStudent />,
+      },
+      {
+        path: "students/edit/:id",
+        loader: async ({ params }) => {
+          const student = await getStudentById(params.id);
+          return student;
+        },
+        element: <AddStudent />,
       },
     ],
   },

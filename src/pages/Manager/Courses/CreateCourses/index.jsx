@@ -26,6 +26,7 @@ export default function CreateCourses() {
   const revalidator = useRevalidator();
   const { id } = useParams();
   const { course } = useLoaderData();
+  console.log(course);
   const result = course?.result;
 
   const {
@@ -49,7 +50,7 @@ export default function CreateCourses() {
   const [thumbnailUrl, setThumbnailUrl] = useState(result?.thumbnail_url || "");
   const inputFileRef = useRef(null);
 
-  const { isPending: isPendingCreate, mutateAsync: mutateCreate } = useMutation(
+  const { isLoading: isPendingCreate, mutateAsync: mutateCreate } = useMutation(
     {
       mutationFn: (data) => createCourse(data),
       onSuccess: () => {
@@ -58,7 +59,7 @@ export default function CreateCourses() {
       },
     }
   );
-  const { isPending: isPendingUpdate, mutateAsync: mutateUpdate } = useMutation(
+  const { isLoading: isPendingUpdate, mutateAsync: mutateUpdate } = useMutation(
     {
       mutationFn: (data) => updateCourse(data, id),
       onSuccess: () => {
