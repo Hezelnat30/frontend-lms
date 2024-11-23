@@ -56,7 +56,8 @@ const checkAlreadySignedIn = (role) => {
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <h1>Home</h1>,
+    loader: checkAuth("manager"),
+    element: <Overview />,
     errorElement: <NotFound />,
   },
   {
