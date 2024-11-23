@@ -15,7 +15,7 @@ export const postSignIn = async (data) => {
     const response = await apiInstance.post("/sign-in", data);
     return response.data;
   } catch (error) {
-    console.log(`Failed to sign in: ${error}`);
+    console.log("Failed to sign in", error);
     throw error;
   }
 };

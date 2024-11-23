@@ -18,11 +18,13 @@ import { useNavigate } from "react-router-dom";
 import { CgSpinnerTwoAlt } from "react-icons/cg";
 import { useRevalidator } from "react-router-dom";
 import { useLoaderData } from "react-router-dom";
+import { useEffect } from "react";
 
 export default function AddStudent() {
   const navigate = useNavigate();
   const student = useLoaderData();
   const result = student?.result;
+  console.log({ result });
 
   const {
     register,
@@ -46,17 +48,24 @@ export default function AddStudent() {
   const { isLoading: updateStudentLoading, mutateAsync: mutateUpdateStudent } =
     useMutation({
       mutationFn: (data) => updateStudent(data, result._id),
-      onSuccess: (response) => {
-        console.log("Student updated successfully", response);
-      },
-      onError: (error) => {
-        console.error("Error updating student:", error);
-        alert("There was an error updating the student.");
-      },
     });
 
   const [file, setFile] = useState(null);
   const inputFileRef = useRef(null);
+  const [photoUrl, setPhotoUrl] = useState(result?.photo_url || "");
+
+  useEffect(() => {
+    if (file) {
+      const newPhotoUrl = URL.createObjectURL(file);
+      setPhotoUrl(newPhotoUrl);
+
+      return () => {
+        URL.revokeObjectURL(newPhotoUrl);
+      };
+    } else {
+      setPhotoUrl(result?.photo_url || "");
+    }
+  }, [file, result?.photo_url]);
 
   const handleAvatarChange = (e) => {
     if (e.target.files && e.target.files.length > 0) {
@@ -67,31 +76,26 @@ export default function AddStudent() {
 
   const handleDeleteAvatar = () => {
     setFile(null);
+    setPhotoUrl("");
     setValue("avatar", null, { shouldValidate: true });
     if (inputFileRef.current) inputFileRef.current.value = "";
   };
 
   const onSubmit = async (data) => {
-    console.log("Form data", data);
     try {
       const formData = new FormData();
       formData.append("avatar", data.avatar);
       formData.append("name", data.name);
       formData.append("email", data.email);
       formData.append("password", data.password);
-      console.log("Submitting form data:", formData);
 
-      if (student === undefined) {
-        console.log("Calling createStudent");
-        await mutateCreateStudent(formData);
-      } else {
-        console.log("Calling updateStudent");
-        await mutateUpdateStudent(formData);
-      }
+      student === undefined
+        ? await mutateCreateStudent(formData)
+        : await mutateUpdateStudent(formData);
 
       navigate("/manager/students");
     } catch (error) {
-      console.log("Failed to create student", error);
+      console.log("Failed to create/update student", error);
     }
   };
 
@@ -132,20 +136,20 @@ export default function AddStudent() {
                 onClick={() => inputFileRef.current.click()}
                 className="absolute top-0 left-0 w-full h-full flex justify-center items-center gap-3 z-0"
               >
-                {file === null && (
+                {!file && !photoUrl && (
                   <ReactSVG src={gallery_add_black} alt="icon" />
                 )}
               </button>
               <img
                 id="avatar-preview"
-                src={file !== null ? URL.createObjectURL(file) : ""}
+                src={photoUrl}
                 className={`w-full h-full object-cover ${
-                  file !== null ? "block" : "hidden"
+                  file || photoUrl ? "block" : "hidden"
                 }`}
                 alt="avatar"
               />
             </div>
-            {file !== null && (
+            {(file || photoUrl) && (
               <button
                 type="button"
                 onClick={handleDeleteAvatar}

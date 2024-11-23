@@ -5,11 +5,14 @@ import { useRevalidator } from "react-router-dom";
 import { NavLink } from "react-router-dom";
 import note_favorite_purple from "@assets/images/icons/note-favorite-purple.svg";
 import { ReactSVG } from "react-svg";
+import { deleteStudentFromCourse } from "@/services/courseService";
+import { useParams } from "react-router-dom";
 
-export default function StudentCard({ imageUrl, name, totalCourse, id }) {
+export default function CardListStudent({ imageUrl, name, id }) {
+  const params = useParams();
   const revalidator = useRevalidator();
   const { isLoading, mutateAsync } = useMutation({
-    mutationFn: () => deleteStudent(id),
+    mutationFn: () => deleteStudentFromCourse({ studentId: id }, params.id),
   });
 
   const handleDeleteStudent = async () => {
@@ -34,24 +37,8 @@ export default function StudentCard({ imageUrl, name, totalCourse, id }) {
       </div>
       <div className="w-full">
         <h3 className="font-bold text-xl leading-7 line-clamp-1">{name}</h3>
-        <div className="flex items-center gap-5">
-          <div className="flex items-center gap-[6px] mt-1.5">
-            <ReactSVG src={note_favorite_purple} alt="icon" />
-            <p className="text-[#838C9D]">
-              {totalCourse > 0
-                ? `${totalCourse} Course Joined`
-                : "0 Course Joined"}
-            </p>
-          </div>
-        </div>
       </div>
       <div className="flex justify-end items-center gap-3">
-        <NavLink
-          to={`/manager/students/edit/${id}`}
-          className="w-fit rounded-full border border-[#060A23] p-[14px_20px] font-semibold text-nowrap"
-        >
-          Edit Profile
-        </NavLink>
         <button
           type="button"
           disabled={isLoading}

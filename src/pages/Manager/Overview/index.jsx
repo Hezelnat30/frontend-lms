@@ -3,6 +3,8 @@ import { NavLink } from "react-router-dom";
 import Courses from "./courses";
 import Students from "./students";
 import Stats from "./stats";
+import { useEffect } from "react";
+import { useLoaderData } from "react-router-dom";
 
 export default function Overview() {
   return (

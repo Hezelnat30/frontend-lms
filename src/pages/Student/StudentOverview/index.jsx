@@ -1,9 +1,13 @@
 import CardCourses from "@/components/Modules/Manager/Courses/CardCourses";
-import CardLatestCourse from "@/components/Modules/Student/CardLatestCourse";
+import CardLatestCourse from "@/components/Modules/Manager/Overview/CardLatestCourse";
 import React from "react";
+import { useLoaderData } from "react-router-dom";
 import { NavLink } from "react-router-dom";
 
 export default function Student() {
+  const studentsCourses = useLoaderData();
+  console.log({ studentsCourses });
+
   return (
     <section
       id="LatestCourse"
@@ -12,10 +16,15 @@ export default function Student() {
       <h2 className="font-extrabold text-[22px] leading-[33px]">
         Latest Courses
       </h2>
-      <CardLatestCourse />
-      <CardLatestCourse title="Mastering React" />
-      <CardLatestCourse title="Responsive Design" />
-      <CardLatestCourse title="Mastering Angular" />
+      {studentsCourses?.map((item) => (
+        <CardLatestCourse
+          key={item._id}
+          id={item._id}
+          imageUrl={item.thumbnail_url}
+          title={item.name}
+          category={item.category.name}
+        />
+      ))}
     </section>
   );
 }

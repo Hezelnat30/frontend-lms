@@ -26,7 +26,6 @@ export default function CreateCourses() {
   const revalidator = useRevalidator();
   const { id } = useParams();
   const { course } = useLoaderData();
-  console.log(course);
   const result = course?.result;
 
   const {

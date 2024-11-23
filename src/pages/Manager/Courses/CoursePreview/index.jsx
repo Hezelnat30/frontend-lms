@@ -6,7 +6,7 @@ import React from "react";
 import { useLoaderData } from "react-router-dom";
 import { useState } from "react";
 
-export default function CoursePreview() {
+export default function CoursePreview({ isAdmin = true }) {
   const course = useLoaderData();
 
   const [activeContent, setActiveContent] = useState(course?.details[0]);

@@ -119,3 +119,39 @@ export const deleteContent = async (id) => {
     throw error;
   }
 };
+
+export const getStudentsCourse = async (id) => {
+  try {
+    const response = await apiInstanceAuth.get(`/courses/students/${id}`);
+    const { data: studentsCourse } = response;
+    return studentsCourse;
+  } catch (error) {
+    console.error("Error occurred:", error);
+    throw error;
+  }
+};
+
+export const addStudentToCourse = async (data, id) => {
+  try {
+    const response = await apiInstanceAuth.post(
+      `/courses/students/${id}`,
+      data
+    );
+    const { data: addStudentToCourse } = response;
+    return addStudentToCourse;
+  } catch (error) {
+    console.error("Error occurred:", error);
+    throw error;
+  }
+};
+
+export const deleteStudentFromCourse = async (data, id) => {
+  try {
+    const response = await apiInstanceAuth.put(`/courses/students/${id}`, data);
+    const { data: deleteStudentFromCourse } = response;
+    return deleteStudentFromCourse;
+  } catch (error) {
+    console.error("Error occurred:", error);
+    throw error;
+  }
+};

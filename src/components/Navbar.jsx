@@ -4,7 +4,7 @@ import { NavLink } from "react-router-dom";
 import { ReactSVG } from "react-svg";
 import { navbarMenu } from "@/constant/navbarMenu";
 
-export default function Navbar() {
+export default function Navbar({ type }) {
   return (
     <nav className="flex items-center justify-between p-7.5">
       <div className="flex items-center gap-15">
@@ -31,11 +31,13 @@ export default function Navbar() {
             <span className="font-semibold text-white">My Dashboard</span>
           </div>
         </NavLink>
-        <NavLink to="/manager/signup">
-          <div className="flex items-center gap-3 w-fit rounded-full border p-[14px_20px] transition-all duration-300 hover:bg-primary-purple-1 hover:border-primary-purple-2 hover:shadow-[-10px_-6px_10px_0_#7F33FF_inset] bg-[#662FFF] border-[#8661EE] shadow-[-10px_-6px_10px_0_#7F33FF_inset]">
-            <span className="font-semibold text-white">Sign Up</span>
-          </div>
-        </NavLink>
+        {type === "manager" && (
+          <NavLink to="/manager/signup">
+            <div className="flex items-center gap-3 w-fit rounded-full border p-[14px_20px] transition-all duration-300 hover:bg-primary-purple-1 hover:border-primary-purple-2 hover:shadow-[-10px_-6px_10px_0_#7F33FF_inset] bg-[#662FFF] border-[#8661EE] shadow-[-10px_-6px_10px_0_#7F33FF_inset]">
+              <span className="font-semibold text-white">Sign Up</span>
+            </div>
+          </NavLink>
+        )}
       </div>
     </nav>
   );

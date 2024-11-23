@@ -51,3 +51,25 @@ export const updateStudent = async (data, id) => {
     throw error;
   }
 };
+
+export const deleteStudent = async (id) => {
+  try {
+    const response = await apiInstanceAuth.delete(`/students/${id}`);
+    const { data: deleteStudent } = response;
+    return deleteStudent;
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+};
+
+export const getCoursesStudents = async () => {
+  try {
+    const response = await apiInstanceAuth.get("/students-courses");
+    const { data: getCoursesStudents } = response;
+    return getCoursesStudents;
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+};

@@ -54,6 +54,18 @@ export default function CardCourses({
         </div>
       </div>
       <div className="flex justify-end items-center gap-3">
+        <NavLink
+          to={`/manager/courses/students/${id}`}
+          className="w-fit rounded-full border border-[#060A23] p-[14px_20px] font-semibold text-nowrap"
+        >
+          Students
+        </NavLink>
+        <NavLink
+          to={`/manager/courses/${id}`}
+          className="w-fit rounded-full border border-[#060A23] p-[14px_20px] font-semibold text-nowrap"
+        >
+          Manage
+        </NavLink>
         <button
           onClick={handleDelete}
           disabled={isPending}
@@ -62,12 +74,6 @@ export default function CardCourses({
         >
           Delete
         </button>
-        <NavLink
-          to={`/manager/courses/${id}`}
-          className="w-fit rounded-full border border-[#060A23] p-[14px_20px] font-semibold text-nowrap"
-        >
-          Manage
-        </NavLink>
       </div>
     </div>
   );

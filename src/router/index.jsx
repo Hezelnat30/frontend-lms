@@ -13,23 +13,44 @@ import CoursePreview from "@/pages/Manager/Courses/CoursePreview";
 import Students from "@/pages/Manager/Students";
 import Student from "@/pages/Student/StudentOverview";
 import secureLocalStorage from "react-secure-storage";
-import { MANAGER_SESSION, STORAGE_KEY } from "@/utils/const";
+import { MANAGER_SESSION, STORAGE_KEY, STUDENT_SESSION } from "@/utils/const";
 import { redirect } from "react-router-dom";
 import {
   getCategories,
   getCourse,
   getCourseById,
   getDetailContent,
+  getStudentsCourse,
 } from "@/services/courseService";
 import AddStudent from "@/pages/Manager/Students/AddStudent";
-import { getStudentById, getStudents } from "@/services/studentService";
+import {
+  getCoursesStudents,
+  getStudentById,
+  getStudents,
+} from "@/services/studentService";
+import StudentList from "@/pages/Manager/Students/StudentList";
+import AddStudentToCourse from "@/pages/Manager/Courses/AddStudentToCourse";
+import { getOverviews } from "@/services/overviewService";
 
-const checkAuth = () => {
-  const session = secureLocalStorage.getItem(STORAGE_KEY);
-  if (!session || session.role !== "manager") {
-    throw redirect("/manager/signin");
-  }
-  return session;
+const checkAuth = (role) => {
+  return () => {
+    const session = secureLocalStorage.getItem(STORAGE_KEY);
+    if (!session || session.role !== role) {
+      throw redirect(`/${role}/signin`);
+    }
+    return session;
+  };
+};
+
+const checkAlreadySignedIn = (role) => {
+  return () => {
+    const session = secureLocalStorage.getItem(STORAGE_KEY);
+
+    if (session && session.role === role) {
+      throw redirect(`/${role}`);
+    }
+    return true;
+  };
 };
 
 const router = createBrowserRouter([
@@ -40,10 +61,12 @@ const router = createBrowserRouter([
   },
   {
     path: "/manager/signin",
+    loader: checkAlreadySignedIn("manager"),
     element: <SignIn />,
   },
   {
     path: "/manager/signup",
+    loader: checkAlreadySignedIn("manager"),
     element: <SignUp />,
   },
   {
@@ -53,11 +76,15 @@ const router = createBrowserRouter([
   {
     path: "/manager",
     id: MANAGER_SESSION,
-    loader: checkAuth,
+    loader: checkAuth("manager"),
     element: <LayoutDashboard />,
     children: [
       {
         index: true,
+        loader: async () => {
+          const overviews = await getOverviews();
+          return overviews?.result;
+        },
         element: <Overview />,
       },
       {
@@ -133,21 +160,52 @@ const router = createBrowserRouter([
         },
         element: <AddStudent />,
       },
+      {
+        path: "courses/students/:id",
+        loader: async ({ params }) => {
+          const courseStudents = await getStudentsCourse(params.id);
+          return courseStudents?.result;
+        },
+        element: <StudentList />,
+      },
+      {
+        path: "courses/students/:id/add",
+        loader: async () => {
+          const students = await getStudents();
+          return students?.result;
+        },
+        element: <AddStudentToCourse />,
+      },
     ],
   },
   {
     path: "/student",
+    id: STUDENT_SESSION,
+    loader: checkAuth("student"),
     element: <LayoutDashboard isAdmin={false} />,
     children: [
       {
         index: true,
+        loader: async () => {
+          const studentsCourses = await getCoursesStudents();
+          return studentsCourses?.result;
+        },
         element: <Student />,
       },
       {
         path: "detail-course/:id",
+        loader: async ({ params }) => {
+          const course = await getCourseById(params.id, true);
+          return course?.result;
+        },
         element: <CoursePreview />,
       },
     ],
+  },
+  {
+    path: "/student/signin",
+    loader: checkAlreadySignedIn("student"),
+    element: <SignIn type="student" />,
   },
 ]);
 

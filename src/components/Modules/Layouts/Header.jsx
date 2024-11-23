@@ -5,20 +5,33 @@ import search_normal from "@assets/images/icons/search-normal.svg";
 import { NavLink } from "react-router-dom";
 import { dropdownMenuManager } from "@/constant/dropdownMenuManager";
 import secureLocalStorage from "react-secure-storage";
-import { STORAGE_KEY } from "@/utils/const";
+import { MANAGER_SESSION, STORAGE_KEY, STUDENT_SESSION } from "@/utils/const";
+import { useRouteLoaderData } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 
 export default function Header() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const location = useLocation();
+  const { pathname } = location;
+
+  const isManager = pathname.includes("/manager");
+
   function handleDropDown() {
     setIsDropdownOpen((prev) => !prev);
   }
 
-  const { name, role } = secureLocalStorage.getItem(STORAGE_KEY);
+  const session = useRouteLoaderData(
+    isManager ? MANAGER_SESSION : STUDENT_SESSION
+  );
+
+  const { name, role } = session;
   const displayRole = role && role.charAt(0).toUpperCase() + role.slice(1);
 
   function handleLogout() {
     secureLocalStorage.removeItem(STORAGE_KEY);
-    window.location.replace("/manager/signin");
+    isManager
+      ? window.location.replace("/manager/signin")
+      : window.location.replace("/student/signin");
   }
 
   return (

@@ -2,10 +2,10 @@ import React from "react";
 import { NavLink } from "react-router-dom";
 
 export default function CardLatestCourse({
-  imageUrl = "/assets/images/thumbnails/th-1.png",
-  id = "1",
+  imageUrl,
+  id,
   category = "Programming",
-  title = "Responsive Design Triclorem Lorem, ipsum dolor.",
+  title,
 }) {
   return (
     <div className="card flex items-center gap-5">

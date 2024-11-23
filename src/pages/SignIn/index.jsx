@@ -6,6 +6,6 @@ import background_glow from "@assets/images/backgrounds/background-glow.png";
 import { ReactSVG } from "react-svg";
 import Form from "@/pages/SignIn/Form";
 
-export default function SignIn() {
-  return <Form />;
+export default function SignIn({ type = "manager" }) {
+  return <Form type={type} />;
 }

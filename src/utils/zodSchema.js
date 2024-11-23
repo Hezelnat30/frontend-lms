@@ -64,7 +64,24 @@ export const createStudentSchema = z.object({
   }),
 });
 
-export const updateStudentSchema = createCourseSchema.omit({
-  avatar: true,
-  password: true,
+export const updateStudentSchema = z.object({
+  name: z.string().min(5, "Name must be at least 5 characters long").optional(),
+  email: z.string().email("Invalid email address").optional(),
+  password: z
+    .string()
+    .optional()
+    .transform((val) => val || undefined)
+    .refine((val) => val === undefined || val.length >= 5, {
+      message: "Password must be at least 5 characters long",
+    }),
+  avatar: z
+    .any()
+    .refine((file) => !file || file?.name, {
+      message: "Avatar is required",
+    })
+    .optional(),
+});
+
+export const addStudentToCourseSchema = z.object({
+  studentId: z.string().min(1, { message: "Please select a student" }),
 });

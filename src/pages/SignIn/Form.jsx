@@ -14,8 +14,9 @@ import { postSignIn } from "@/services/authService";
 import secureLocalStorage from "react-secure-storage";
 import { STORAGE_KEY } from "@/utils/const";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
-export default function Form() {
+export default function Form({ type }) {
   const navigate = useNavigate();
   const {
     register,
@@ -36,7 +37,12 @@ export default function Form() {
       secureLocalStorage.setItem(STORAGE_KEY, result);
       result.role === "manager" ? navigate("/manager") : navigate("/student");
     } catch (error) {
-      console.log(error);
+      const errorMessage = error.response.data.message;
+      if (errorMessage) {
+        toast(errorMessage, { type: "error" });
+      } else {
+        console.log("Failed to sign in", error);
+      }
     }
   };
 
@@ -49,7 +55,7 @@ export default function Form() {
           alt="background-glow"
         />
       </div>
-      <Navbar />
+      <Navbar type={type} />
       <div className="flex justify-center items-center">
         <form
           onSubmit={handleSubmit(onSubmit)}
@@ -90,7 +96,7 @@ export default function Form() {
           </div>
           <hr className="border-[#262A56]" />
           <ButtonSubmitForm
-            text="Sign In to Manage"
+            text={type === "manager" ? "Sign In to Manage" : "Sign In to Learn"}
             disabled={isPending ? true : false}
           />
         </form>
