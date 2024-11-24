@@ -79,6 +79,7 @@ const router = createBrowserRouter([
     id: MANAGER_SESSION,
     loader: checkAuth("manager"),
     element: <LayoutDashboard />,
+    errorElement: <NotFound />,
     children: [
       {
         index: true,

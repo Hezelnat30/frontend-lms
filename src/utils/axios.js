@@ -6,12 +6,12 @@ const baseURL = import.meta.env.VITE_API_URL;
 
 const apiInstance = axios.create({
   baseURL,
-  timeout: 3000,
+  timeout: 5000,
 });
 
 export const apiInstanceAuth = axios.create({
   baseURL,
-  timeout: 3000,
+  timeout: 5000,
 });
 
 apiInstanceAuth.interceptors.request.use((config) => {
